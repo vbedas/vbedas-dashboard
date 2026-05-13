@@ -68,12 +68,23 @@
       font-weight: bold;
     }
 
+    .small-text {
+      font-size: 13px;
+      color: #66788a;
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+
     .normal {
       color: #1b8a5a;
     }
 
     .alert {
       color: #d62828;
+    }
+
+    .warning {
+      color: #b7791f;
     }
 
     .section {
@@ -88,6 +99,11 @@
       margin-bottom: 15px;
       color: #102a43;
       font-size: 20px;
+    }
+
+    .section p {
+      line-height: 1.6;
+      color: #333;
     }
 
     table {
@@ -111,6 +127,7 @@
       border-radius: 20px;
       font-size: 12px;
       font-weight: bold;
+      display: inline-block;
     }
 
     .badge-normal {
@@ -121,6 +138,51 @@
     .badge-alert {
       background: #ffe5e5;
       color: #d62828;
+    }
+
+    .badge-warning {
+      background: #fff3cd;
+      color: #b7791f;
+    }
+
+    .node-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 18px;
+    }
+
+    .node-box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .node-box h3 {
+      color: #102a43;
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .node-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 7px 0;
+      border-bottom: 1px solid #e5e7eb;
+      gap: 12px;
+    }
+
+    .node-row:last-child {
+      border-bottom: none;
+    }
+
+    .node-label {
+      color: #555;
+    }
+
+    .node-value {
+      font-weight: bold;
+      text-align: right;
     }
 
     .footer {
@@ -134,40 +196,81 @@
 <body>
   <header>
     <h1>Vibration Based Earthquake Detection and Alert System</h1>
-    <p>Real-Time Monitoring Dashboard | ESP32 + MPU6050 + Firebase</p>
+    <p>Real-Time Monitoring Dashboard | Dual ESP32 Nodes + MPU6050 + ESP-NOW + GSM + Firebase</p>
   </header>
 
   <div class="container">
     <div class="cards">
       <div class="card">
         <h3>Device Status</h3>
-        <div id="deviceStatus" class="value normal">Online</div>
+        <div id="deviceStatus" class="value warning">Waiting</div>
+        <div id="lastUpdated" class="small-text">Last update: N/A</div>
       </div>
 
       <div class="card">
         <h3>Current System State</h3>
         <div id="systemState" class="value normal">Normal</div>
+        <div id="confirmationText" class="small-text">Dual-node confirmation required</div>
       </div>
 
       <div class="card">
-        <h3>Current Acceleration</h3>
-        <div class="value"><span id="acceleration">0.00</span> g</div>
+        <h3>Node 1 Magnitude</h3>
+        <div class="value"><span id="node1Mag">0.00</span> m/s²</div>
+        <div id="node1VibText" class="small-text">Status: Waiting</div>
+      </div>
+
+      <div class="card">
+        <h3>Node 2 Magnitude</h3>
+        <div class="value"><span id="node2Mag">0.00</span> m/s²</div>
+        <div id="node2VibText" class="small-text">Status: Waiting</div>
       </div>
 
       <div class="card">
         <h3>Threshold Value</h3>
-        <div class="value"><span id="threshold">1.50</span> g</div>
+        <div class="value"><span id="threshold">0.20</span> m/s²</div>
+        <div class="small-text">Same threshold used in both working nodes</div>
       </div>
 
       <div class="card">
-        <h3>Total Alerts</h3>
+        <h3>Total Confirmed Alerts</h3>
         <div id="totalAlerts" class="value">0</div>
+        <div id="smsStatus" class="small-text">SMS: N/A</div>
       </div>
 
       <div class="card">
         <h3>System Reliability</h3>
         <div class="value"><span id="efficiency">0</span>%</div>
+        <div class="small-text">Based on test records</div>
       </div>
+    </div>
+
+    <div class="section">
+      <h2>Node Health</h2>
+      <div class="node-grid">
+        <div class="node-box">
+          <h3>Node 1 — Display / Buzzer / LED</h3>
+          <div class="node-row"><span class="node-label">Online</span><span id="node1Online" class="node-value warning">Waiting</span></div>
+          <div class="node-row"><span class="node-label">Vibration</span><span id="node1Vib" class="node-value normal">No</span></div>
+          <div class="node-row"><span class="node-label">Magnitude</span><span id="node1MagDetail" class="node-value">0.00 m/s²</span></div>
+          <div class="node-row"><span class="node-label">Local Alert</span><span id="node1Alert" class="node-value normal">Off</span></div>
+          <div class="node-row"><span class="node-label">Last Seen</span><span id="node1LastSeen" class="node-value">N/A</span></div>
+        </div>
+
+        <div class="node-box">
+          <h3>Node 2 — GSM / SMS Alert</h3>
+          <div class="node-row"><span class="node-label">Online</span><span id="node2Online" class="node-value warning">Waiting</span></div>
+          <div class="node-row"><span class="node-label">Vibration</span><span id="node2Vib" class="node-value normal">No</span></div>
+          <div class="node-row"><span class="node-label">Magnitude</span><span id="node2MagDetail" class="node-value">0.00 m/s²</span></div>
+          <div class="node-row"><span class="node-label">SIM800L</span><span id="simStatus" class="node-value warning">N/A</span></div>
+          <div class="node-row"><span class="node-label">Last SMS</span><span id="lastSms" class="node-value">N/A</span></div>
+          <div class="node-row"><span class="node-label">Last Seen</span><span id="node2LastSeen" class="node-value">N/A</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>Live Node Magnitude Graph</h2>
+      <canvas id="liveChart" height="95"></canvas>
     </div>
 
     <div class="section">
@@ -182,14 +285,15 @@
           <tr>
             <th>S.N.</th>
             <th>Date & Time</th>
-            <th>Acceleration</th>
+            <th>Node 1</th>
+            <th>Node 2</th>
             <th>Threshold</th>
             <th>Status</th>
           </tr>
         </thead>
         <tbody id="alertTable">
           <tr>
-            <td colspan="5">No alert data available</td>
+            <td colspan="6">No alert data available</td>
           </tr>
         </tbody>
       </table>
@@ -198,14 +302,14 @@
     <div class="section">
       <h2>About This Project</h2>
       <p>
-        This dashboard visualizes real-time vibration data collected by an MPU6050 sensor
-        connected to an ESP32 microcontroller. When the acceleration magnitude exceeds
-        the predefined threshold, the system generates local alerts using a buzzer and LED,
-        sends SMS notifications using a GSM module, and stores event data in Firebase.
+        This dashboard visualizes a dual-node vibration detection prototype. Node 1 handles the
+        OLED display, buzzer, and LED alert, while Node 2 handles GSM/SMS notification. Both nodes
+        exchange vibration status using ESP-NOW, and an alert is considered confirmed only when both
+        nodes detect abnormal vibration within the allowed detection window.
       </p>
       <br />
       <p>
-        The system does not predict earthquakes or calculate magnitude. It is designed as a
+        The system does not predict earthquakes or calculate earthquake magnitude. It is designed as a
         low-cost local awareness prototype for abnormal ground vibration detection.
       </p>
     </div>
@@ -219,36 +323,57 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    // Replace this with your Firebase project config
-     const firebaseConfig = {
-  apiKey: "AIzaSyC_VAznxpLqoi9xiCXa1SlTNC1aLT4qrRc",
-  authDomain: "vbedas.firebaseapp.com",
-  databaseURL: "https://vbedas-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "vbedas",
-  storageBucket: "vbedas.firebasestorage.app",
-  messagingSenderId: "38863431120",
-  appId: "1:38863431120:web:7200dc3feda823673645d5",
-  measurementId: "G-J1B6QRPP9L"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyC_VAznxpLqoi9xiCXa1SlTNC1aLT4qrRc",
+      authDomain: "vbedas.firebaseapp.com",
+      databaseURL: "https://vbedas-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "vbedas",
+      storageBucket: "vbedas.firebasestorage.app",
+      messagingSenderId: "38863431120",
+      appId: "1:38863431120:web:7200dc3feda823673645d5",
+      measurementId: "G-J1B6QRPP9L"
+    };
 
     const app = initializeApp(firebaseConfig);
     const database = getDatabase(app);
 
-    const accelerationEl = document.getElementById("acceleration");
-    const thresholdEl = document.getElementById("threshold");
-    const systemStateEl = document.getElementById("systemState");
-    const totalAlertsEl = document.getElementById("totalAlerts");
-    const efficiencyEl = document.getElementById("efficiency");
-    const alertTable = document.getElementById("alertTable");
+    const ONLINE_TIMEOUT_MS = 7000;
+    const DEFAULT_THRESHOLD = 0.2;
 
-    const ctx = document.getElementById("accelerationChart").getContext("2d");
+    const els = {
+      deviceStatus: document.getElementById("deviceStatus"),
+      lastUpdated: document.getElementById("lastUpdated"),
+      systemState: document.getElementById("systemState"),
+      confirmationText: document.getElementById("confirmationText"),
+      node1Mag: document.getElementById("node1Mag"),
+      node2Mag: document.getElementById("node2Mag"),
+      node1MagDetail: document.getElementById("node1MagDetail"),
+      node2MagDetail: document.getElementById("node2MagDetail"),
+      node1VibText: document.getElementById("node1VibText"),
+      node2VibText: document.getElementById("node2VibText"),
+      node1Online: document.getElementById("node1Online"),
+      node2Online: document.getElementById("node2Online"),
+      node1Vib: document.getElementById("node1Vib"),
+      node2Vib: document.getElementById("node2Vib"),
+      node1Alert: document.getElementById("node1Alert"),
+      simStatus: document.getElementById("simStatus"),
+      lastSms: document.getElementById("lastSms"),
+      node1LastSeen: document.getElementById("node1LastSeen"),
+      node2LastSeen: document.getElementById("node2LastSeen"),
+      threshold: document.getElementById("threshold"),
+      totalAlerts: document.getElementById("totalAlerts"),
+      smsStatus: document.getElementById("smsStatus"),
+      efficiency: document.getElementById("efficiency"),
+      alertTable: document.getElementById("alertTable")
+    };
 
-    const chart = new Chart(ctx, {
+    const confirmedCtx = document.getElementById("accelerationChart").getContext("2d");
+    const confirmedChart = new Chart(confirmedCtx, {
       type: "line",
       data: {
         labels: [],
         datasets: [{
-          label: "Detected Event Acceleration (g)",
+          label: "Confirmed Event Magnitude (m/s²)",
           data: [],
           borderWidth: 2,
           tension: 0.3
@@ -257,76 +382,198 @@
       options: {
         responsive: true,
         scales: {
-          y: {
-            beginAtZero: true
-          }
+          y: { beginAtZero: true }
         }
       }
     });
 
-    // Expected Firebase structure:
-    // /latest
-    //    acceleration: 1.23
-    //    threshold: 1.5
-    //    status: "Normal" or "Alert"
-    //    timestamp: "2025-12-10 14:30:22"
-    // /events
-    //    eventId:
-    //      acceleration: 1.89
-    //      threshold: 1.5
-    //      status: "Alert" or "Confirmed Earthquake"
-    //      timestamp: "2025-12-10 14:30:22"
-    // /tests
-    //    totalTests: 20
-    //    correctDetections: 18
-
-    const latestRef = ref(database, "latest");
-    onValue(latestRef, (snapshot) => {
-      if (!snapshot.exists()) return;
-
-      const data = snapshot.val();
-      const acceleration = Number(data.acceleration || 0);
-      const threshold = Number(data.threshold || 1.5);
-      const status = data.status || "Normal";
-
-      accelerationEl.textContent = acceleration.toFixed(2);
-      thresholdEl.textContent = threshold.toFixed(2);
-      systemStateEl.textContent = status;
-
-      if (status.toLowerCase().includes("alert") || status.toLowerCase().includes("earthquake")) {
-        systemStateEl.className = "value alert";
-      } else {
-        systemStateEl.className = "value normal";
+    const liveCtx = document.getElementById("liveChart").getContext("2d");
+    const liveChart = new Chart(liveCtx, {
+      type: "line",
+      data: {
+        labels: [],
+        datasets: [
+          { label: "Node 1 Magnitude", data: [], borderWidth: 2, tension: 0.3 },
+          { label: "Node 2 Magnitude", data: [], borderWidth: 2, tension: 0.3 }
+        ]
+      },
+      options: {
+        responsive: true,
+        animation: false,
+        scales: {
+          y: { beginAtZero: true }
+        }
       }
     });
 
-    const eventsRef = ref(database, "events");
-    onValue(eventsRef, (snapshot) => {
+    let node1 = { magnitude: 0, vibrating: false, online: false, alert: false, lastSeen: 0 };
+    let node2 = { magnitude: 0, vibrating: false, online: false, simReady: false, lastSeen: 0, lastSms: "N/A" };
+    let latestTimestamp = "N/A";
+
+    function asBool(value) {
+      return value === true || value === 1 || value === "1" || String(value).toLowerCase() === "true";
+    }
+
+    function readTime(value) {
+      if (!value) return 0;
+      if (typeof value === "number") return value;
+      const parsed = Date.parse(value);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    }
+
+    function formatTime(value) {
+      if (!value) return "N/A";
+      if (typeof value === "string" && Number.isNaN(Date.parse(value))) return value;
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? "N/A" : date.toLocaleString();
+    }
+
+    function setStatus(el, text, type) {
+      el.textContent = text;
+      el.className = el.className.replace(/\bnormal\b|\balert\b|\bwarning\b/g, "").trim() + " " + type;
+    }
+
+    function updateLiveChart() {
+      const label = new Date().toLocaleTimeString();
+      liveChart.data.labels.push(label);
+      liveChart.data.datasets[0].data.push(node1.magnitude);
+      liveChart.data.datasets[1].data.push(node2.magnitude);
+
+      if (liveChart.data.labels.length > 20) {
+        liveChart.data.labels.shift();
+        liveChart.data.datasets[0].data.shift();
+        liveChart.data.datasets[1].data.shift();
+      }
+      liveChart.update();
+    }
+
+    function renderDashboard() {
+      const now = Date.now();
+      const node1Online = node1.lastSeen ? (now - node1.lastSeen <= ONLINE_TIMEOUT_MS) : node1.online;
+      const node2Online = node2.lastSeen ? (now - node2.lastSeen <= ONLINE_TIMEOUT_MS) : node2.online;
+      const bothOnline = node1Online && node2Online;
+      const bothVibrating = node1.vibrating && node2.vibrating;
+      const confirmed = bothOnline && bothVibrating;
+
+      els.node1Mag.textContent = Number(node1.magnitude || 0).toFixed(2);
+      els.node2Mag.textContent = Number(node2.magnitude || 0).toFixed(2);
+      els.node1MagDetail.textContent = `${Number(node1.magnitude || 0).toFixed(2)} m/s²`;
+      els.node2MagDetail.textContent = `${Number(node2.magnitude || 0).toFixed(2)} m/s²`;
+
+      setStatus(els.node1Online, node1Online ? "Online" : "Offline", node1Online ? "normal" : "alert");
+      setStatus(els.node2Online, node2Online ? "Online" : "Offline", node2Online ? "normal" : "alert");
+      setStatus(els.node1Vib, node1.vibrating ? "Yes" : "No", node1.vibrating ? "alert" : "normal");
+      setStatus(els.node2Vib, node2.vibrating ? "Yes" : "No", node2.vibrating ? "alert" : "normal");
+      setStatus(els.node1Alert, node1.alert || confirmed ? "On" : "Off", node1.alert || confirmed ? "alert" : "normal");
+      setStatus(els.simStatus, node2.simReady ? "Ready" : "N/A", node2.simReady ? "normal" : "warning");
+
+      els.node1VibText.textContent = `Status: ${node1.vibrating ? "Vibration detected" : "No vibration"}`;
+      els.node2VibText.textContent = `Status: ${node2.vibrating ? "Vibration detected" : "No vibration"}`;
+      els.node1LastSeen.textContent = node1.lastSeen ? formatTime(node1.lastSeen) : "N/A";
+      els.node2LastSeen.textContent = node2.lastSeen ? formatTime(node2.lastSeen) : "N/A";
+      els.lastSms.textContent = node2.lastSms || "N/A";
+      els.lastUpdated.textContent = `Last update: ${latestTimestamp}`;
+
+      if (!bothOnline) {
+        setStatus(els.deviceStatus, "Partial", "warning");
+      } else {
+        setStatus(els.deviceStatus, "Online", "normal");
+      }
+
+      if (confirmed) {
+        setStatus(els.systemState, "Confirmed Alert", "alert");
+        els.confirmationText.textContent = "Both Node 1 and Node 2 detected vibration";
+      } else if (node1.vibrating || node2.vibrating) {
+        setStatus(els.systemState, "Verification", "warning");
+        els.confirmationText.textContent = "Single-node vibration detected; waiting for second node";
+      } else {
+        setStatus(els.systemState, "Normal", "normal");
+        els.confirmationText.textContent = "Dual-node confirmation required";
+      }
+
+      updateLiveChart();
+    }
+
+    // Recommended Firebase structure for the final system:
+    // /nodes/node1: { magnitude, vibrating, alert, online, timestamp }
+    // /nodes/node2: { magnitude, vibrating, simReady, lastSms, online, timestamp }
+    // /latest: { node1Magnitude, node2Magnitude, node1Vibrating, node2Vibrating, threshold, status, timestamp, smsStatus }
+    // /events/eventId: { node1Magnitude, node2Magnitude, threshold, status, timestamp }
+    // /tests: { totalTests, correctDetections }
+
+    onValue(ref(database, "nodes/node1"), (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.val();
+      node1.magnitude = Number(data.magnitude ?? data.acceleration ?? 0);
+      node1.vibrating = asBool(data.vibrating);
+      node1.online = data.online === undefined ? true : asBool(data.online);
+      node1.alert = asBool(data.alert);
+      node1.lastSeen = readTime(data.timestamp || data.lastSeen || Date.now());
+      renderDashboard();
+    });
+
+    onValue(ref(database, "nodes/node2"), (snapshot) => {
+      if (!snapshot.exists()) return;
+      const data = snapshot.val();
+      node2.magnitude = Number(data.magnitude ?? data.acceleration ?? 0);
+      node2.vibrating = asBool(data.vibrating);
+      node2.online = data.online === undefined ? true : asBool(data.online);
+      node2.simReady = asBool(data.simReady);
+      node2.lastSms = data.lastSms || data.smsStatus || "N/A";
+      node2.lastSeen = readTime(data.timestamp || data.lastSeen || Date.now());
+      renderDashboard();
+    });
+
+    // Backward-compatible support for your old /latest data structure
+    onValue(ref(database, "latest"), (snapshot) => {
+      if (!snapshot.exists()) return;
+
+      const data = snapshot.val();
+      const threshold = Number(data.threshold ?? DEFAULT_THRESHOLD);
+      const status = String(data.status || "Normal");
+
+      els.threshold.textContent = threshold.toFixed(2);
+      latestTimestamp = data.timestamp || formatTime(Date.now());
+      els.smsStatus.textContent = `SMS: ${data.smsStatus || data.lastSms || "N/A"}`;
+
+      node1.magnitude = Number(data.node1Magnitude ?? data.n1Magnitude ?? data.acceleration ?? node1.magnitude ?? 0);
+      node2.magnitude = Number(data.node2Magnitude ?? data.n2Magnitude ?? data.acceleration ?? node2.magnitude ?? 0);
+      node1.vibrating = asBool(data.node1Vibrating ?? data.n1Vibrating ?? status.toLowerCase().includes("alert"));
+      node2.vibrating = asBool(data.node2Vibrating ?? data.n2Vibrating ?? status.toLowerCase().includes("alert"));
+      node1.lastSeen = readTime(data.node1Timestamp || data.timestamp || Date.now());
+      node2.lastSeen = readTime(data.node2Timestamp || data.timestamp || Date.now());
+      node1.online = true;
+      node2.online = true;
+
+      renderDashboard();
+    });
+
+    onValue(ref(database, "events"), (snapshot) => {
       if (!snapshot.exists()) return;
 
       const events = snapshot.val();
       const eventArray = Object.values(events).reverse();
-      totalAlertsEl.textContent = eventArray.length;
+      els.totalAlerts.textContent = eventArray.length;
+      els.alertTable.innerHTML = "";
 
-      alertTable.innerHTML = "";
-
-      // Show latest 10 detection events in table
       eventArray.slice(0, 10).forEach((event, index) => {
-        const status = event.status || "Alert";
+        const status = event.status || "Confirmed Alert";
         const badgeClass = status.toLowerCase().includes("normal") ? "badge-normal" : "badge-alert";
+        const n1 = Number(event.node1Magnitude ?? event.n1Magnitude ?? event.acceleration ?? 0);
+        const n2 = Number(event.node2Magnitude ?? event.n2Magnitude ?? event.acceleration ?? 0);
 
-        alertTable.innerHTML += `
+        els.alertTable.innerHTML += `
           <tr>
             <td>${index + 1}</td>
             <td>${event.timestamp || "N/A"}</td>
-            <td>${Number(event.acceleration || 0).toFixed(2)} g</td>
-            <td>${Number(event.threshold || 1.5).toFixed(2)} g</td>
+            <td>${n1.toFixed(2)} m/s²</td>
+            <td>${n2.toFixed(2)} m/s²</td>
+            <td>${Number(event.threshold ?? DEFAULT_THRESHOLD).toFixed(2)} m/s²</td>
             <td><span class="badge ${badgeClass}">${status}</span></td>
           </tr>
         `;
       });
 
-      // Graph ONLY confirmed/detected events, not continuous normal readings
       const graphEvents = Object.values(events)
         .filter(event => {
           const status = String(event.status || "").toLowerCase();
@@ -334,26 +581,26 @@
         })
         .slice(-15);
 
-      chart.data.labels = graphEvents.map(event => event.timestamp || "Event");
-      chart.data.datasets[0].data = graphEvents.map(event => Number(event.acceleration || 0));
-      chart.update();
+      confirmedChart.data.labels = graphEvents.map(event => event.timestamp || "Event");
+      confirmedChart.data.datasets[0].data = graphEvents.map(event => {
+        const n1 = Number(event.node1Magnitude ?? event.n1Magnitude ?? event.acceleration ?? 0);
+        const n2 = Number(event.node2Magnitude ?? event.n2Magnitude ?? event.acceleration ?? 0);
+        return Math.max(n1, n2);
+      });
+      confirmedChart.update();
     });
 
-    const testsRef = ref(database, "tests");
-    onValue(testsRef, (snapshot) => {
+    onValue(ref(database, "tests"), (snapshot) => {
       if (!snapshot.exists()) return;
 
       const data = snapshot.val();
       const totalTests = Number(data.totalTests || 0);
       const correctDetections = Number(data.correctDetections || 0);
-
-      let efficiency = 0;
-      if (totalTests > 0) {
-        efficiency = (correctDetections / totalTests) * 100;
-      }
-
-      efficiencyEl.textContent = efficiency.toFixed(1);
+      const efficiency = totalTests > 0 ? (correctDetections / totalTests) * 100 : 0;
+      els.efficiency.textContent = efficiency.toFixed(1);
     });
+
+    setInterval(renderDashboard, 5000);
   </script>
 </body>
 </html>
