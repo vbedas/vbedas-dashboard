@@ -213,15 +213,15 @@
       </div>
 
       <div class="card">
-        <h3>Node 1 Acceleration</h3>
+        <h3>Node 2 Acceleration</h3>
         <div class="value"><span id="node1Acceleration">0.00</span></div>
-        <div class="small-text">Primary display node</div>
+        <div class="small-text">Firebase path: /node1</div>
       </div>
 
       <div class="card">
-        <h3>Node 2 Delta</h3>
+        <h3>Node 1 Delta</h3>
         <div class="value"><span id="node2Delta">0.00</span></div>
-        <div class="small-text">Secondary SMS node</div>
+        <div class="small-text">Firebase path: /node2</div>
       </div>
 
       <div class="card">
@@ -247,7 +247,7 @@
       <h2>Live Node Data</h2>
       <div class="node-grid">
         <div class="node-box">
-          <h3>Node 1: Primary Display Node</h3>
+          <h3>Node 2: Primary Display Node</h3>
           <div class="node-row"><strong>Status</strong><span id="node1Status" class="badge badge-offline">Waiting</span></div>
           <div class="node-row"><strong>Acceleration</strong><span id="node1AccelerationDetail">0.00</span></div>
           <div class="node-row"><strong>Raw Magnitude</strong><span id="node1RawMag">0.00</span></div>
@@ -257,7 +257,7 @@
         </div>
 
         <div class="node-box">
-          <h3>Node 2: Secondary SMS Node</h3>
+          <h3>Node 1: Secondary SMS Node</h3>
           <div class="node-row"><strong>Status</strong><span id="node2Status" class="badge badge-offline">Waiting</span></div>
           <div class="node-row"><strong>Delta</strong><span id="node2DeltaDetail">0.00</span></div>
           <div class="node-row"><strong>Raw Magnitude</strong><span id="node2RawMag">0.00</span></div>
@@ -299,7 +299,7 @@
       <p>
         This dashboard visualizes real-time vibration data collected by MPU6050 sensors
         connected to ESP32 microcontrollers. The system uses two nodes for verification.
-        Node 1 updates primary display data, while Node 2 handles SMS alert operation.
+        Firebase /node1 is displayed as Node 2, and Firebase /node2 is displayed as Node 1 according to the current hardware mapping.
       </p>
       <br />
       <p>
@@ -391,6 +391,14 @@
       if (value === true || value === "true") return "true";
       if (value === false || value === "false") return "false";
       return "--";
+    }
+
+
+    function displayNodeName(nodeValue) {
+      const node = String(nodeValue || "").toLowerCase();
+      if (node === "node1") return "Node 2";
+      if (node === "node2") return "Node 1";
+      return nodeValue || "N/A";
     }
 
     function setBadge(element, status) {
@@ -520,7 +528,7 @@
         alertTable.innerHTML += `
           <tr>
             <td>${index + 1}</td>
-            <td>${event.node || "N/A"}</td>
+            <td>${displayNodeName(event.node)}</td>
             <td>${event.timestamp || "N/A"}</td>
             <td>${toNumber(event.acceleration, 0).toFixed(4)}</td>
             <td>${toNumber(event.threshold, 0.3).toFixed(2)}</td>
