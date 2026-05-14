@@ -4,566 +4,415 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Vibration Based Earthquake Detection Dashboard</title>
-
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: Arial, sans-serif;
-    }
-
-    body {
-      background: #f4f6f8;
-      color: #222;
-    }
-
-    header {
-      background: #102a43;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-
-    header h1 {
-      font-size: 26px;
-      margin-bottom: 8px;
-    }
-
-    header p {
-      font-size: 14px;
-      color: #d9e2ec;
-    }
-
-    .container {
-      width: 92%;
-      max-width: 1200px;
-      margin: 25px auto;
-    }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 18px;
-      margin-bottom: 25px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-    }
-
-    .card h3 {
-      font-size: 15px;
-      color: #555;
-      margin-bottom: 12px;
-    }
-
-    .card .value {
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .small-text {
-      margin-top: 8px;
-      font-size: 13px;
-      color: #66788a;
-    }
-
-    .normal {
-      color: #1b8a5a;
-    }
-
-    .alert {
-      color: #d62828;
-    }
-
-    .vibrating {
-      color: #f77f00;
-    }
-
-    .offline {
-      color: #777;
-    }
-
-    .section {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-      margin-bottom: 25px;
-    }
-
-    .section h2 {
-      margin-bottom: 15px;
-      color: #102a43;
-      font-size: 20px;
-    }
-
-    .node-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 18px;
-    }
-
-    .node-box {
-      border: 1px solid #d9e2ec;
-      border-radius: 10px;
-      padding: 16px;
-      background: #fbfdff;
-    }
-
-    .node-box h3 {
-      color: #102a43;
-      margin-bottom: 12px;
-      font-size: 18px;
-    }
-
-    .node-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 8px 0;
-      border-bottom: 1px solid #edf2f7;
-      font-size: 14px;
-    }
-
-    .node-row:last-child {
-      border-bottom: none;
-    }
-
-    .node-row strong {
-      color: #334e68;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-
-    th, td {
-      padding: 12px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
-    }
-
-    th {
-      background: #f0f4f8;
-    }
-
-    .badge {
-      padding: 5px 10px;
-      border-radius: 20px;
-      font-size: 12px;
-      font-weight: bold;
-      display: inline-block;
-    }
-
-    .badge-normal {
-      background: #d8f3dc;
-      color: #1b8a5a;
-    }
-
-    .badge-alert {
-      background: #ffe5e5;
-      color: #d62828;
-    }
-
-    .badge-vibrating {
-      background: #fff3cd;
-      color: #b36b00;
-    }
-
-    .badge-offline {
-      background: #eeeeee;
-      color: #666;
-    }
-
-    .footer {
-      text-align: center;
-      padding: 18px;
-      color: #555;
-      font-size: 13px;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; }
+    body { background: #f4f6f8; color: #222; }
+    header { background: #102a43; color: white; padding: 20px; text-align: center; }
+    header h1 { font-size: 26px; margin-bottom: 8px; }
+    header p { font-size: 14px; color: #d9e2ec; }
+    .container { width: 92%; max-width: 1200px; margin: 25px auto; }
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; margin-bottom: 25px; }
+    .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+    .card h3 { font-size: 14px; color: #555; margin-bottom: 10px; }
+    .card .value { font-size: 26px; font-weight: bold; }
+    .small-text { margin-top: 8px; font-size: 12px; color: #66788a; }
+    .normal { color: #1b8a5a; }
+    .alert { color: #d62828; }
+    .vibrating { color: #f77f00; }
+    .offline { color: #777; }
+    .section { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); margin-bottom: 25px; }
+    .section h2 { margin-bottom: 15px; color: #102a43; font-size: 20px; }
+    .node-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+    .node-box { border: 1px solid #d9e2ec; border-radius: 10px; padding: 16px; background: #fbfdff; }
+    .node-box h3 { color: #102a43; margin-bottom: 12px; font-size: 17px; }
+    .node-row { display: flex; justify-content: space-between; gap: 12px; padding: 7px 0; border-bottom: 1px solid #edf2f7; font-size: 13px; }
+    .node-row:last-child { border-bottom: none; }
+    .node-row strong { color: #334e68; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 11px; border-bottom: 1px solid #ddd; text-align: left; }
+    th { background: #f0f4f8; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold; display: inline-block; }
+    .badge-normal   { background: #d8f3dc; color: #1b8a5a; }
+    .badge-alert    { background: #ffe5e5; color: #d62828; }
+    .badge-vibrating{ background: #fff3cd; color: #b36b00; }
+    .badge-offline  { background: #eeeeee; color: #666; }
+    .footer { text-align: center; padding: 18px; color: #555; font-size: 13px; }
+    #connectionStatus { position: fixed; top: 12px; right: 12px; padding: 6px 14px;
+      border-radius: 20px; font-size: 12px; font-weight: bold; background: #ccc; color: #333; z-index: 999; }
+    #connectionStatus.connected { background: #d8f3dc; color: #1b8a5a; }
+    #connectionStatus.error     { background: #ffe5e5; color: #d62828; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>Vibration Based Earthquake Detection and Alert System</h1>
-    <p>Real-Time Monitoring Dashboard | ESP32 + MPU6050 + Firebase</p>
-  </header>
 
-  <div class="container">
-    <div class="cards">
-      <div class="card">
-        <h3>Device Status</h3>
-        <div id="deviceStatus" class="value offline">Checking...</div>
-        <div id="deviceStatusDetail" class="small-text">Waiting for node data</div>
-      </div>
+<div id="connectionStatus">Connecting…</div>
 
-      <div class="card">
-        <h3>Current System State</h3>
-        <div id="systemState" class="value normal">Normal</div>
-        <div id="systemStateDetail" class="small-text">Dual-node verification</div>
-      </div>
+<header>
+  <h1>Vibration Based Earthquake Detection and Alert System</h1>
+  <p>Real-Time Monitoring Dashboard | ESP32 + MPU6050 + Firebase</p>
+</header>
 
-      <div class="card">
-        <h3>Node 2 Acceleration</h3>
-        <div class="value"><span id="node1Acceleration">0.00</span></div>
-        <div class="small-text">Firebase path: /node1</div>
-      </div>
+<div class="container">
 
-      <div class="card">
-        <h3>Node 1 Delta</h3>
-        <div class="value"><span id="node2Delta">0.00</span></div>
-        <div class="small-text">Firebase path: /node2</div>
-      </div>
-
-      <div class="card">
-        <h3>Threshold Value</h3>
-        <div class="value"><span id="threshold">0.30</span></div>
-        <div class="small-text">Configured alert limit</div>
-      </div>
-
-      <div class="card">
-        <h3>Total Alerts</h3>
-        <div id="totalAlerts" class="value">0</div>
-        <div class="small-text">Stored in /events</div>
-      </div>
-
-      <div class="card">
-        <h3>System Reliability</h3>
-        <div class="value"><span id="efficiency">0</span>%</div>
-        <div class="small-text">From /tests data</div>
-      </div>
+  <!-- ── Summary cards ── -->
+  <div class="cards">
+    <div class="card">
+      <h3>Device Status</h3>
+      <div id="deviceStatus" class="value offline">Checking…</div>
+      <div id="deviceStatusDetail" class="small-text">Waiting for node data</div>
     </div>
 
-    <div class="section">
-      <h2>Live Node Data</h2>
-      <div class="node-grid">
-        <div class="node-box">
-          <h3>Node 2: Primary Display Node</h3>
-          <div class="node-row"><strong>Status</strong><span id="node1Status" class="badge badge-offline">Waiting</span></div>
-          <div class="node-row"><strong>Acceleration</strong><span id="node1AccelerationDetail">0.00</span></div>
-          <div class="node-row"><strong>Raw Magnitude</strong><span id="node1RawMag">0.00</span></div>
-          <div class="node-row"><strong>Shaking</strong><span id="node1Shaking">false</span></div>
-          <div class="node-row"><strong>Online</strong><span id="node1Online">false</span></div>
-          <div class="node-row"><strong>Timestamp</strong><span id="node1Timestamp">--</span></div>
-        </div>
-
-        <div class="node-box">
-          <h3>Node 1: Secondary SMS Node</h3>
-          <div class="node-row"><strong>Status</strong><span id="node2Status" class="badge badge-offline">Waiting</span></div>
-          <div class="node-row"><strong>Delta</strong><span id="node2DeltaDetail">0.00</span></div>
-          <div class="node-row"><strong>Raw Magnitude</strong><span id="node2RawMag">0.00</span></div>
-          <div class="node-row"><strong>Shaking</strong><span id="node2Shaking">false</span></div>
-          <div class="node-row"><strong>Online</strong><span id="node2Online">false</span></div>
-          <div class="node-row"><strong>Timestamp</strong><span id="node2Timestamp">--</span></div>
-        </div>
-      </div>
+    <div class="card">
+      <h3>System State</h3>
+      <div id="systemState" class="value normal">Normal</div>
+      <div id="systemStateDetail" class="small-text">Dual-node verification</div>
     </div>
 
-    <div class="section">
-      <h2>Confirmed Detection Graph</h2>
-      <canvas id="accelerationChart" height="100"></canvas>
+    <!-- Firebase /node1 → displayed as "Node 1 (Display)" -->
+    <div class="card">
+      <h3>Node 1 Acceleration</h3>
+      <div class="value"><span id="n1Accel">0.0000</span> <small style="font-size:14px">m/s²</small></div>
+      <div class="small-text">Firebase: /node1/acceleration</div>
     </div>
 
-    <div class="section">
-      <h2>Alert History</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>S.N.</th>
-            <th>Node</th>
-            <th>Date & Time</th>
-            <th>Acceleration</th>
-            <th>Threshold</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="alertTable">
-          <tr>
-            <td colspan="6">No alert data available</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- Firebase /node2 → displayed as "Node 2 (SMS)" -->
+    <div class="card">
+      <h3>Node 2 Delta</h3>
+      <div class="value"><span id="n2Delta">0.0000</span> <small style="font-size:14px">m/s²</small></div>
+      <div class="small-text">Firebase: /node2/delta</div>
     </div>
 
-    <div class="section">
-      <h2>About This Project</h2>
-      <p>
-        This dashboard visualizes real-time vibration data collected by MPU6050 sensors
-        connected to ESP32 microcontrollers. The system uses two nodes for verification.
-        Firebase /node1 is displayed as Node 2, and Firebase /node2 is displayed as Node 1 according to the current hardware mapping.
-      </p>
-      <br />
-      <p>
-        The system does not predict earthquakes or calculate magnitude. It is designed as a
-        low-cost local awareness prototype for abnormal ground vibration detection.
-      </p>
+    <div class="card">
+      <h3>Threshold</h3>
+      <div class="value"><span id="threshold">—</span></div>
+      <div class="small-text">Configured alert limit</div>
+    </div>
+
+    <div class="card">
+      <h3>Total Events</h3>
+      <div id="totalAlerts" class="value">0</div>
+      <div class="small-text">Stored in /events</div>
+    </div>
+
+    <div class="card">
+      <h3>System Reliability</h3>
+      <div class="value"><span id="efficiency">—</span></div>
+      <div class="small-text">From /tests data</div>
     </div>
   </div>
 
-  <div class="footer">
-    Minor Project Final Report | IOE, Paschimanchal Campus
+  <!-- ── Live node detail ── -->
+  <div class="section">
+    <h2>Live Node Data</h2>
+    <div class="node-grid">
+
+      <!-- Firebase /node1 → Node 1 (Primary Display Node, has OLED/Buzzer) -->
+      <div class="node-box">
+        <h3>Node 1 — Primary Display Node</h3>
+        <div class="node-row"><strong>Status</strong>     <span id="n1Status" class="badge badge-offline">Waiting</span></div>
+        <div class="node-row"><strong>Acceleration</strong><span id="n1AccelDetail">—</span></div>
+        <div class="node-row"><strong>Raw Magnitude</strong><span id="n1RawMag">—</span></div>
+        <div class="node-row"><strong>Threshold</strong>  <span id="n1Threshold">—</span></div>
+        <div class="node-row"><strong>Shaking</strong>    <span id="n1Shaking">—</span></div>
+        <div class="node-row"><strong>Online</strong>     <span id="n1Online">—</span></div>
+        <div class="node-row"><strong>Uptime</strong>     <span id="n1Uptime">—</span></div>
+        <div class="node-row"><strong>Timestamp</strong>  <span id="n1Timestamp">—</span></div>
+      </div>
+
+      <!-- Firebase /node2 → Node 2 (Secondary SMS Node, has SIM800L) -->
+      <div class="node-box">
+        <h3>Node 2 — Secondary SMS Node</h3>
+        <div class="node-row"><strong>Status</strong>     <span id="n2Status" class="badge badge-offline">Waiting</span></div>
+        <div class="node-row"><strong>Delta</strong>      <span id="n2DeltaDetail">—</span></div>
+        <div class="node-row"><strong>Raw Magnitude</strong><span id="n2RawMag">—</span></div>
+        <div class="node-row"><strong>Threshold</strong>  <span id="n2Threshold">—</span></div>
+        <div class="node-row"><strong>Shaking</strong>    <span id="n2Shaking">—</span></div>
+        <div class="node-row"><strong>Online</strong>     <span id="n2Online">—</span></div>
+        <div class="node-row"><strong>Uptime</strong>     <span id="n2Uptime">—</span></div>
+        <div class="node-row"><strong>Timestamp</strong>  <span id="n2Timestamp">—</span></div>
+      </div>
+
+    </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
+  <!-- ── Graph ── -->
+  <div class="section">
+    <h2>Confirmed Detection Graph</h2>
+    <canvas id="accelerationChart" height="100"></canvas>
+  </div>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyC_VAznxpLqoi9xiCXa1SlTNCIaLT4qrRc",
-      authDomain: "vbedas.firebaseapp.com",
-      databaseURL: "https://vbedas-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "vbedas",
-      storageBucket: "vbedas.firebasestorage.app",
-      messagingSenderId: "38863431120",
-      appId: "1:38863431120:web:7200dc3feda823673645d5",
-      measurementId: "G-J1B6QRPP9L"
-    };
+  <!-- ── History ── -->
+  <div class="section">
+    <h2>Alert History</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>S.N.</th>
+          <th>Node</th>
+          <th>Date & Time</th>
+          <th>Acceleration</th>
+          <th>Threshold</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody id="alertTable">
+        <tr><td colspan="6">No alert data available</td></tr>
+      </tbody>
+    </table>
+  </div>
 
-    const app = initializeApp(firebaseConfig);
-    const database = getDatabase(app);
+  <!-- ── About ── -->
+  <div class="section">
+    <h2>About This Project</h2>
+    <p>
+      This dashboard visualises real-time vibration data collected by MPU6050 sensors
+      connected to two ESP32 microcontrollers.
+      <strong>Firebase /node1</strong> is the Primary Display Node (OLED + Buzzer + LED).
+      <strong>Firebase /node2</strong> is the Secondary SMS Node (SIM800L).
+    </p>
+    <br/>
+    <p>
+      The system does not predict earthquakes. It is a low-cost local awareness prototype
+      for abnormal ground vibration detection using dual-node confirmation.
+    </p>
+  </div>
+</div>
 
-    const deviceStatusEl = document.getElementById("deviceStatus");
-    const deviceStatusDetailEl = document.getElementById("deviceStatusDetail");
-    const systemStateEl = document.getElementById("systemState");
-    const systemStateDetailEl = document.getElementById("systemStateDetail");
-    const node1AccelerationEl = document.getElementById("node1Acceleration");
-    const node2DeltaEl = document.getElementById("node2Delta");
-    const thresholdEl = document.getElementById("threshold");
-    const totalAlertsEl = document.getElementById("totalAlerts");
-    const efficiencyEl = document.getElementById("efficiency");
-    const alertTable = document.getElementById("alertTable");
+<div class="footer">Minor Project Final Report | IOE, Paschimanchal Campus</div>
 
-    const node1StatusEl = document.getElementById("node1Status");
-    const node1AccelerationDetailEl = document.getElementById("node1AccelerationDetail");
-    const node1RawMagEl = document.getElementById("node1RawMag");
-    const node1ShakingEl = document.getElementById("node1Shaking");
-    const node1OnlineEl = document.getElementById("node1Online");
-    const node1TimestampEl = document.getElementById("node1Timestamp");
+<script type="module">
+import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
 
-    const node2StatusEl = document.getElementById("node2Status");
-    const node2DeltaDetailEl = document.getElementById("node2DeltaDetail");
-    const node2RawMagEl = document.getElementById("node2RawMag");
-    const node2ShakingEl = document.getElementById("node2Shaking");
-    const node2OnlineEl = document.getElementById("node2Online");
-    const node2TimestampEl = document.getElementById("node2Timestamp");
+const firebaseConfig = {
+  apiKey:            "AIzaSyC_VAznxpLqoi9xiCXa1SlTNCIaLT4qrRc",
+  authDomain:        "vbedas.firebaseapp.com",
+  databaseURL:       "https://vbedas-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId:         "vbedas",
+  storageBucket:     "vbedas.firebasestorage.app",
+  messagingSenderId: "38863431120",
+  appId:             "1:38863431120:web:7200dc3feda823673645d5",
+};
 
-    let node1Data = null;
-    let node2Data = null;
+const app      = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-    const ctx = document.getElementById("accelerationChart").getContext("2d");
+// ── Element refs ──────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const connEl = $('connectionStatus');
 
-    const chart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: [],
-        datasets: [{
-          label: "Detected Event Acceleration",
-          data: [],
-          borderWidth: 2,
-          tension: 0.3
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: true
-          }
-        }
-      }
-    });
+// ── Helpers ───────────────────────────────────────────────────────────
+function toNum(v, fallback = 0) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
 
-    function toNumber(value, fallback = 0) {
-      const number = Number(value);
-      return Number.isFinite(number) ? number : fallback;
-    }
+function fmt4(v)  { return toNum(v).toFixed(4); }
+function fmt2(v)  { return toNum(v, 0.3).toFixed(2); }
 
-    function boolText(value) {
-      if (value === true || value === "true") return "true";
-      if (value === false || value === "false") return "false";
-      return "--";
-    }
+function boolText(v) {
+  if (v === true  || v === 'true')  return 'true';
+  if (v === false || v === 'false') return 'false';
+  return '—';
+}
 
+function setBadge(el, status) {
+  const s = String(status || 'Waiting');
+  const l = s.toLowerCase();
+  el.textContent = s;
+  el.className = 'badge ' + (
+    l.includes('alert') || l.includes('earthquake') || l.includes('confirmed') ? 'badge-alert'     :
+    l.includes('vibrat') || l.includes('shake')                                 ? 'badge-vibrating' :
+    l.includes('normal')                                                         ? 'badge-normal'    :
+    'badge-offline'
+  );
+}
 
-    function displayNodeName(nodeValue) {
-      const node = String(nodeValue || "").toLowerCase();
-      if (node === "node1") return "Node 2";
-      if (node === "node2") return "Node 1";
-      return nodeValue || "N/A";
-    }
+function displayNode(raw) {
+  // Events store "node1"/"node2" — map to human label
+  if (String(raw).toLowerCase() === 'node1') return 'Node 1 (Display)';
+  if (String(raw).toLowerCase() === 'node2') return 'Node 2 (SMS)';
+  return raw || 'N/A';
+}
 
-    function setBadge(element, status) {
-      const state = String(status || "Waiting");
-      const lower = state.toLowerCase();
+// ── Chart ─────────────────────────────────────────────────────────────
+const ctx   = $('accelerationChart').getContext('2d');
+const chart = new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: [],
+    datasets: [{
+      label: 'Alert Event Acceleration (m/s²)',
+      data: [],
+      borderColor: '#d62828',
+      backgroundColor: 'rgba(214,40,40,0.1)',
+      borderWidth: 2,
+      tension: 0.3,
+      pointRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    scales: { y: { beginAtZero: true, title: { display: true, text: 'm/s²' } } }
+  }
+});
 
-      element.textContent = state;
+// ── State ─────────────────────────────────────────────────────────────
+let node1Data = null; // Firebase /node1
+let node2Data = null; // Firebase /node2
 
-      if (lower.includes("alert") || lower.includes("earthquake") || lower.includes("confirmed")) {
-        element.className = "badge badge-alert";
-      } else if (lower.includes("vibrating") || lower.includes("shake")) {
-        element.className = "badge badge-vibrating";
-      } else if (lower.includes("normal")) {
-        element.className = "badge badge-normal";
-      } else {
-        element.className = "badge badge-offline";
-      }
-    }
+function updateOverall() {
+  const s1 = String(node1Data?.status || '').toLowerCase();
+  const s2 = String(node2Data?.status || '').toLowerCase();
+  const on1 = node1Data?.online === true || node1Data?.online === 'true';
+  const on2 = node2Data?.online === true || node2Data?.online === 'true';
 
-    function updateOverallStatus() {
-      const node1Status = String(node1Data?.status || "").toLowerCase();
-      const node2Status = String(node2Data?.status || "").toLowerCase();
-      const node1Online = node1Data?.online === true || node1Data?.online === "true";
-      const node2Online = node2Data?.online === true || node2Data?.online === "true";
+  // Device status
+  if (on1 && on2) {
+    $('deviceStatus').textContent = 'Online';
+    $('deviceStatus').className   = 'value normal';
+    $('deviceStatusDetail').textContent = 'Both nodes updating';
+    connEl.textContent = '● Firebase Connected';
+    connEl.className   = 'connected';
+  } else if (on1 || on2) {
+    $('deviceStatus').textContent = 'Partial';
+    $('deviceStatus').className   = 'value vibrating';
+    $('deviceStatusDetail').textContent = 'Only one node active';
+    connEl.textContent = '● Firebase Connected';
+    connEl.className   = 'connected';
+  } else {
+    $('deviceStatus').textContent = 'Offline';
+    $('deviceStatus').className   = 'value offline';
+    $('deviceStatusDetail').textContent = 'No live node data';
+  }
 
-      if (node1Online && node2Online) {
-        deviceStatusEl.textContent = "Online";
-        deviceStatusEl.className = "value normal";
-        deviceStatusDetailEl.textContent = "Both nodes are updating";
-      } else if (node1Online || node2Online) {
-        deviceStatusEl.textContent = "Partial";
-        deviceStatusEl.className = "value vibrating";
-        deviceStatusDetailEl.textContent = "Only one node is updating";
-      } else {
-        deviceStatusEl.textContent = "Offline";
-        deviceStatusEl.className = "value offline";
-        deviceStatusDetailEl.textContent = "No live node data received";
-      }
+  // System state
+  const isAlert = s1.includes('alert') || s2.includes('alert') ||
+                  s1.includes('earthquake') || s2.includes('earthquake');
+  const isVib   = s1.includes('vibrat') || s2.includes('vibrat');
 
-      if (node1Status.includes("alert") || node2Status.includes("alert") ||
-          node1Status.includes("earthquake") || node2Status.includes("earthquake")) {
-        systemStateEl.textContent = "Alert";
-        systemStateEl.className = "value alert";
-        systemStateDetailEl.textContent = "Confirmed alert data received";
-      } else if (node1Status.includes("vibrating") || node2Status.includes("vibrating")) {
-        systemStateEl.textContent = "Vibrating";
-        systemStateEl.className = "value vibrating";
-        systemStateDetailEl.textContent = "Vibration detected on at least one node";
-      } else {
-        systemStateEl.textContent = "Normal";
-        systemStateEl.className = "value normal";
-        systemStateDetailEl.textContent = "Both nodes are below threshold";
-      }
+  if (isAlert) {
+    $('systemState').textContent = 'ALERT';
+    $('systemState').className   = 'value alert';
+    $('systemStateDetail').textContent = 'Confirmed alert — both nodes';
+  } else if (isVib) {
+    $('systemState').textContent = 'Vibrating';
+    $('systemState').className   = 'value vibrating';
+    $('systemStateDetail').textContent = 'Vibration on at least one node';
+  } else {
+    $('systemState').textContent = 'Normal';
+    $('systemState').className   = 'value normal';
+    $('systemStateDetail').textContent = 'Both nodes below threshold';
+  }
 
-      const threshold = toNumber(node1Data?.threshold, toNumber(node2Data?.threshold, 0.3));
-      thresholdEl.textContent = threshold.toFixed(2);
-    }
+  // Threshold — prefer node1, fallback node2
+  const thr = toNum(node1Data?.threshold, toNum(node2Data?.threshold, 0.3));
+  $('threshold').textContent = thr.toFixed(2) + ' m/s²';
+}
 
-    // Fixed issue: dashboard now reads from /node1 instead of old /latest.
-    const node1Ref = ref(database, "node1");
-    onValue(node1Ref, (snapshot) => {
-      if (!snapshot.exists()) return;
+// ── /node1 listener (Primary Display Node) ───────────────────────────
+onValue(ref(database, 'node1'), snap => {
+  if (!snap.exists()) return;
+  node1Data = snap.val();
 
-      node1Data = snapshot.val();
+  const accel  = toNum(node1Data.acceleration);
+  const rawMag = toNum(node1Data.rawMag);
 
-      const acceleration = toNumber(node1Data.acceleration, 0);
-      const rawMag = toNumber(node1Data.rawMag, 0);
-      const status = node1Data.status || "Normal";
+  $('n1Accel').textContent       = fmt4(accel);
+  $('n1AccelDetail').textContent = fmt4(accel) + ' m/s²';
+  $('n1RawMag').textContent      = fmt4(rawMag) + ' m/s²';
+  $('n1Threshold').textContent   = fmt2(node1Data.threshold) + ' m/s²';
+  $('n1Shaking').textContent     = boolText(node1Data.shaking);
+  $('n1Online').textContent      = boolText(node1Data.online);
+  $('n1Uptime').textContent      = node1Data.uptime != null ? node1Data.uptime + ' s' : '—';
+  $('n1Timestamp').textContent   = node1Data.timestamp || '—';
+  setBadge($('n1Status'), node1Data.status || 'Normal');
 
-      node1AccelerationEl.textContent = acceleration.toFixed(4);
-      node1AccelerationDetailEl.textContent = acceleration.toFixed(4);
-      node1RawMagEl.textContent = rawMag.toFixed(4);
-      node1ShakingEl.textContent = boolText(node1Data.shaking);
-      node1OnlineEl.textContent = boolText(node1Data.online);
-      node1TimestampEl.textContent = node1Data.timestamp || "--";
-      setBadge(node1StatusEl, status);
+  updateOverall();
+}, err => {
+  connEl.textContent = '● Firebase Error';
+  connEl.className   = 'error';
+  console.error(err);
+});
 
-      updateOverallStatus();
-    });
+// ── /node2 listener (Secondary SMS Node) ─────────────────────────────
+onValue(ref(database, 'node2'), snap => {
+  if (!snap.exists()) return;
+  node2Data = snap.val();
 
-    // Fixed issue: dashboard now reads from /node2 instead of old /latest.
-    const node2Ref = ref(database, "node2");
-    onValue(node2Ref, (snapshot) => {
-      if (!snapshot.exists()) return;
+  const delta  = toNum(node2Data.delta);
+  const rawMag = toNum(node2Data.rawMag);
 
-      node2Data = snapshot.val();
+  $('n2Delta').textContent       = fmt4(delta);
+  $('n2DeltaDetail').textContent = fmt4(delta) + ' m/s²';
+  $('n2RawMag').textContent      = fmt4(rawMag) + ' m/s²';
+  $('n2Threshold').textContent   = fmt2(node2Data.threshold) + ' m/s²';
+  $('n2Shaking').textContent     = boolText(node2Data.shaking);
+  $('n2Online').textContent      = boolText(node2Data.online);
+  $('n2Uptime').textContent      = node2Data.uptime != null ? node2Data.uptime + ' s' : '—';
+  $('n2Timestamp').textContent   = node2Data.timestamp || '—';
+  setBadge($('n2Status'), node2Data.status || 'Normal');
 
-      const delta = toNumber(node2Data.delta, 0);
-      const rawMag = toNumber(node2Data.rawMag, 0);
-      const status = node2Data.status || "Normal";
+  updateOverall();
+});
 
-      node2DeltaEl.textContent = delta.toFixed(4);
-      node2DeltaDetailEl.textContent = delta.toFixed(4);
-      node2RawMagEl.textContent = rawMag.toFixed(4);
-      node2ShakingEl.textContent = boolText(node2Data.shaking);
-      node2OnlineEl.textContent = boolText(node2Data.online);
-      node2TimestampEl.textContent = node2Data.timestamp || "--";
-      setBadge(node2StatusEl, status);
+// ── /events listener ─────────────────────────────────────────────────
+onValue(ref(database, 'events'), snap => {
+  if (!snap.exists()) {
+    $('totalAlerts').textContent = '0';
+    $('alertTable').innerHTML = '<tr><td colspan="6">No alert data available</td></tr>';
+    chart.data.labels = [];
+    chart.data.datasets[0].data = [];
+    chart.update();
+    return;
+  }
 
-      updateOverallStatus();
-    });
+  const events     = snap.val();
+  const eventArray = Object.values(events).reverse();
+  $('totalAlerts').textContent = eventArray.length;
 
-    const eventsRef = ref(database, "events");
-    onValue(eventsRef, (snapshot) => {
-      if (!snapshot.exists()) {
-        totalAlertsEl.textContent = "0";
-        alertTable.innerHTML = `<tr><td colspan="6">No alert data available</td></tr>`;
-        chart.data.labels = [];
-        chart.data.datasets[0].data = [];
-        chart.update();
-        return;
-      }
+  $('alertTable').innerHTML = '';
+  eventArray.slice(0, 15).forEach((ev, idx) => {
+    const status = ev.status || 'Alert';
+    const sl = String(status).toLowerCase();
+    const badgeCls = sl.includes('normal')   ? 'badge-normal'    :
+                     sl.includes('vibrat')   ? 'badge-vibrating' :
+                     'badge-alert';
+    $('alertTable').innerHTML += `
+      <tr>
+        <td>${idx + 1}</td>
+        <td>${displayNode(ev.node)}</td>
+        <td>${ev.timestamp || 'N/A'}</td>
+        <td>${toNum(ev.acceleration).toFixed(4)} m/s²</td>
+        <td>${toNum(ev.threshold, 0.3).toFixed(2)} m/s²</td>
+        <td><span class="badge ${badgeCls}">${status}</span></td>
+      </tr>`;
+  });
 
-      const events = snapshot.val();
-      const eventArray = Object.values(events).reverse();
-      totalAlertsEl.textContent = eventArray.length;
+  // Graph: only confirmed alert events
+  const alertEvents = Object.values(events)
+    .filter(e => {
+      const s = String(e.status || '').toLowerCase();
+      return s.includes('alert') || s.includes('earthquake') || s.includes('confirmed');
+    })
+    .slice(-20);
 
-      alertTable.innerHTML = "";
+  chart.data.labels             = alertEvents.map(e => e.timestamp || 'Event');
+  chart.data.datasets[0].data   = alertEvents.map(e => toNum(e.acceleration));
+  chart.update();
+});
 
-      eventArray.slice(0, 10).forEach((event, index) => {
-        const status = event.status || "Alert";
-        const lowerStatus = String(status).toLowerCase();
-        const badgeClass = lowerStatus.includes("normal") ? "badge-normal" :
-                           lowerStatus.includes("vibrating") ? "badge-vibrating" :
-                           "badge-alert";
-
-        alertTable.innerHTML += `
-          <tr>
-            <td>${index + 1}</td>
-            <td>${displayNodeName(event.node)}</td>
-            <td>${event.timestamp || "N/A"}</td>
-            <td>${toNumber(event.acceleration, 0).toFixed(4)}</td>
-            <td>${toNumber(event.threshold, 0.3).toFixed(2)}</td>
-            <td><span class="badge ${badgeClass}">${status}</span></td>
-          </tr>
-        `;
-      });
-
-      const graphEvents = Object.values(events)
-        .filter(event => {
-          const status = String(event.status || "").toLowerCase();
-          return status.includes("alert") || status.includes("earthquake") || status.includes("confirmed");
-        })
-        .slice(-15);
-
-      chart.data.labels = graphEvents.map(event => event.timestamp || "Event");
-      chart.data.datasets[0].data = graphEvents.map(event => toNumber(event.acceleration, 0));
-      chart.update();
-    });
-
-    const testsRef = ref(database, "tests");
-    onValue(testsRef, (snapshot) => {
-      if (!snapshot.exists()) return;
-
-      const data = snapshot.val();
-      const totalTests = toNumber(data.totalTests, 0);
-      const correctDetections = toNumber(data.correctDetections, 0);
-
-      let efficiency = 0;
-      if (totalTests > 0) {
-        efficiency = (correctDetections / totalTests) * 100;
-      }
-
-      efficiencyEl.textContent = efficiency.toFixed(1);
-    });
-  </script>
+// ── /tests listener ──────────────────────────────────────────────────
+onValue(ref(database, 'tests'), snap => {
+  if (!snap.exists()) return;
+  const d     = snap.val();
+  const total = toNum(d.totalTests);
+  const good  = toNum(d.correctDetections);
+  $('efficiency').textContent = total > 0
+    ? (good / total * 100).toFixed(1) + '%'
+    : '—';
+});
+</script>
 </body>
 </html>
